@@ -2,26 +2,27 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB_CREDENTIALS = 'dockerhub-credentials'
-        DOCKER_IMAGE = 'prasanthr25/todo-website'
-        EC2_HOST = '16.171.150.61'
+        DOCKER_HUB_CREDENTIALS = 'dockerhub-credentials' // Jenkins credentials ID
+        DOCKER_IMAGE_NAME = 'prasanthr25/todo-website:latest'
         EC2_USER = 'ec2-user'
-        PEM_PATH = '/var/lib/jenkins/todo-key0ne.pem' // adjust if stored elsewhere
-        CONTAINER_NAME = 'todo-website'
+        EC2_HOST = '16.171.150.61'
+        PEM_FILE = '/var/lib/jenkins/todo-key0ne.pem'
     }
 
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'master',
-                    url: 'https://github.com/prasanth-devops/todo-website.git'
+                git branch: 'master', url: 'https://github.com/prasanth-devops/todo-website.git'
             }
         }
 
         stage('Build Docker Image') {
             steps {
                 script {
-                    dockerImage = docker.build("${DOCKER_IMAGE}:latest")
+                    // Ensure no cached invalid login
+                    sh 'docker logout || true'
+                    // Build image
+                    def dockerImage = docker.build("${DOCKER_IMAGE_NAME}")
                 }
             }
         }
@@ -29,8 +30,9 @@ pipeline {
         stage('Push to Docker Hub') {
             steps {
                 script {
-                    docker.withRegistry('', DOCKERHUB_CREDENTIALS) {
-                        dockerImage.push('latest')
+                    docker.withRegistry('https://index.docker.io/v1/', "${DOCKER_HUB_CREDENTIALS}") {
+                        def dockerImage = docker.image("${DOCKER_IMAGE_NAME}")
+                        dockerImage.push()
                     }
                 }
             }
@@ -39,17 +41,15 @@ pipeline {
         stage('Deploy to AWS EC2') {
             steps {
                 script {
-                    sshCommand remote: [
-                        name: 'ec2-server',
-                        host: "${EC2_HOST}",
-                        user: "${EC2_USER}",
-                        identityFile: "${PEM_PATH}",
-                        allowAnyHosts: true
-                    ], command: """
-                        docker pull ${DOCKER_IMAGE}:latest
-                        docker stop ${CONTAINER_NAME} || true
-                        docker rm ${CONTAINER_NAME} || true
-                        docker run -d -p 80:80 --name ${CONTAINER_NAME} ${DOCKER_IMAGE}:latest
+                    // Copy Docker image deploy script or run commands via SSH
+                    sh """
+                    ssh -o StrictHostKeyChecking=no -i ${PEM_FILE} ${EC2_USER}@${EC2_HOST} '
+                        docker login -u prasanthr25 -p ${DOCKER_HUB_CREDENTIALS}
+                        docker pull ${DOCKER_IMAGE_NAME}
+                        docker stop todo-website || true
+                        docker rm todo-website || true
+                        docker run -d --name todo-website -p 80:80 ${DOCKER_IMAGE_NAME}
+                    '
                     """
                 }
             }
@@ -58,10 +58,10 @@ pipeline {
 
     post {
         success {
-            echo "✅ Deployment successful! App running on http://${EC2_HOST}"
+            echo '✅ Deployment succeeded!'
         }
         failure {
-            echo "❌ Deployment failed!"
+            echo '❌ Deployment failed!'
         }
     }
 }
