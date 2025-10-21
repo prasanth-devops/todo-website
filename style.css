@@ -1,0 +1,138 @@
+/* Simple, clean stylesheet */
+:root{
+  --bg:#0f1724;
+  --card:#0b1120;
+  --muted:#9aa4b2;
+  --accent:#60a5fa;
+  --glass: rgba(255,255,255,0.04);
+  --success: #34d399;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  background: linear-gradient(180deg,#071026 0%, #021121 100%);
+  color:#e6eef6;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  padding:24px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.container{
+  width:100%;
+  max-width:760px;
+  background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+  padding:20px;
+  border-radius:12px;
+  box-shadow: 0 8px 30px rgba(2,6,23,0.6);
+  border:1px solid rgba(255,255,255,0.03);
+}
+h1{
+  margin:0 0 12px 0;
+  font-size:1.6rem;
+  letter-spacing:0.2px;
+}
+.task-form{
+  display:flex;
+  gap:8px;
+  margin-bottom:12px;
+}
+#task-input{
+  flex:1;
+  padding:12px 14px;
+  border-radius:8px;
+  border:1px solid rgba(255,255,255,0.04);
+  background:var(--glass);
+  color:inherit;
+  outline:none;
+  font-size:1rem;
+}
+#task-input::placeholder{color:var(--muted)}
+#add-btn{
+  padding:10px 14px;
+  border-radius:8px;
+  border:none;
+  background:var(--accent);
+  color:#04263b;
+  font-weight:600;
+  cursor:pointer;
+}
+.controls{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:12px;
+}
+.filters button{
+  background:transparent;
+  border:1px solid rgba(255,255,255,0.03);
+  padding:6px 10px;
+  border-radius:8px;
+  color:var(--muted);
+  cursor:pointer;
+  margin-right:6px;
+}
+.filters button.active{
+  background:rgba(96,165,250,0.12);
+  color:var(--accent);
+  border-color:rgba(96,165,250,0.18);
+}
+#clear-completed{
+  background:transparent;
+  border:none;
+  color:var(--muted);
+  cursor:pointer;
+}
+.task-list{list-style:none;padding:0;margin:0;}
+.task-item{
+  display:flex;
+  gap:12px;
+  align-items:center;
+  padding:10px;
+  border-radius:8px;
+  margin-bottom:8px;
+  background:rgba(255,255,255,0.01);
+  border:1px solid rgba(255,255,255,0.02);
+}
+.task-item .label{
+  flex:1;
+  word-break:break-word;
+}
+.task-item .label.completed{
+  text-decoration:line-through;
+  opacity:0.6;
+}
+.task-actions{
+  display:flex;
+  gap:8px;
+}
+.icon-btn{
+  background:transparent;
+  border:none;
+  color:var(--muted);
+  cursor:pointer;
+  padding:6px;
+  border-radius:6px;
+}
+.edit-input{
+  width:100%;
+  padding:8px;
+  border-radius:6px;
+  border:1px solid rgba(255,255,255,0.04);
+  background:transparent;
+  color:inherit;
+}
+.hint{
+  margin-top:14px;
+  color:var(--muted);
+  font-size:0.9rem;
+  text-align:center;
+}
+@media (max-width:520px){
+  .container{padding:14px}
+  #add-btn{padding:10px}
+}
